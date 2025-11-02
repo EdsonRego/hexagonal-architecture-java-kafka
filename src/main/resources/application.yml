@@ -1,0 +1,4 @@
+rego:
+  client:
+    address:
+      url: http://localhots:8082/addresses
