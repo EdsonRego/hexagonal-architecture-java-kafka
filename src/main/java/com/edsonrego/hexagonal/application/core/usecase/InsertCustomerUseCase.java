@@ -1,10 +1,11 @@
 package com.edsonrego.hexagonal.application.core.usecase;
 
 import com.edsonrego.hexagonal.application.core.domain.Customer;
+import com.edsonrego.hexagonal.application.ports.in.InsertCustomerInputPort;
 import com.edsonrego.hexagonal.application.ports.out.FindAddressByZipCodeOutputPort;
 import com.edsonrego.hexagonal.application.ports.out.InsertCustomerOutputPort;
 
-public class InsertCustomerUseCase {
+public class InsertCustomerUseCase implements InsertCustomerInputPort {
 
     private final FindAddressByZipCodeOutputPort findAddressByZipCodeOutputPort;
 
@@ -17,6 +18,7 @@ public class InsertCustomerUseCase {
         this.insertCustomerOutputPort = insertCustomerOutputPort;
     }
 
+    @Override
     public void insert(Customer customer, String zipCode){
         var address = findAddressByZipCodeOutputPort.find(zipCode);
         customer.setAddress(address);

@@ -1,0 +1,15 @@
+package com.edsonrego.hexagonal.adapters.in.controller.mapper;
+
+import com.edsonrego.hexagonal.adapters.in.controller.request.CustomerRequest;
+import com.edsonrego.hexagonal.application.core.domain.Customer;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
+@Mapper(componentModel = "spring")
+public interface CustomerMapper {
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "address", ignore = true)
+    @Mapping(target = "isValidCpf", ignore = true)
+    Customer toCustomer(CustomerRequest customerRequest);
+}
