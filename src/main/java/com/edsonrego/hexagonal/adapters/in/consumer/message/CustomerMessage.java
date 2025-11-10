@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 public class CustomerMessage {
 
     private String id;
-    private String nome;
+    private String name;
     private String zipCode;
-    private String cp;
-    private Boolean isValidCpd;
+    private String cpf;
+    private Boolean isValidCpf;
 }
