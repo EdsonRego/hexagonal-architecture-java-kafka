@@ -1,13 +1,14 @@
 # 🧩 Projeto: Arquitetura Hexagonal com Spring Boot, Kafka, MongoDB e WireMock
 
 Este projeto demonstra na prática a **Arquitetura Hexagonal (Ports and Adapters)** utilizando:
+
 - **Java 17**
 - **Spring Boot 3**
 - **MongoDB**
 - **Apache Kafka**
 - **Feign Client + WireMock**
 - **Docker Compose**
-- **Ferramentas de apoio**: Postman, Kafkalytic e Offset Explorer.
+- **Ferramentas de apoio**: Postman, Kafkalytic e Offset Explorer
 
 ---
 
@@ -15,7 +16,7 @@ Este projeto demonstra na prática a **Arquitetura Hexagonal (Ports and Adapters
 
 ### 🏗️ Arquitetura Hexagonal
 
-A Arquitetura Hexagonal, também conhecida como **Ports and Adapters**, tem como objetivo **isolar a lógica de negócio** (domínio) das dependências externas, como bancos de dados, mensagerias, frameworks ou APIs externas.
+A **Arquitetura Hexagonal**, também conhecida como **Ports and Adapters**, tem como objetivo **isolar a lógica de negócio** (domínio) das dependências externas, como bancos de dados, mensagerias, frameworks ou APIs externas.
 
 Ela organiza o sistema em três camadas principais:
 
@@ -38,7 +39,7 @@ Essa abordagem garante **baixo acoplamento** e **alta testabilidade**, permitind
 
 ---
 
-## ⚙️ Arquitetura do Projeto
+## 📦 Estrutura de Pastas
 
 hexagonal
 ├── adapters
@@ -66,41 +67,51 @@ Copiar código
 
 ---
 
-## 🚀 Execução do Projeto
+## 🧰 Pré-requisitos
 
-### 🔧 1. Subir os containers Docker
+Certifique-se de ter instalado:
 
-Na raiz do projeto:
+- **Java 17**
+- **Gradle 8+**
+- **Docker Desktop**
+- **WireMock 4.0.0-beta.15 (JAR)**
+- **Postman**
+- **VS Code com plugin Kafkalytic (opcional)**
+- **Offset Explorer (opcional)**
+
+---
+
+## 🚀 Passo a Passo de Execução
+
+### 1️⃣ Subir os containers Docker
+
+Na raiz do projeto, execute:
 
 
 docker compose up -d
 Isso iniciará:
 
-Zookeeper → porta 2181
+Serviço	Porta	Função
+Zookeeper	2181	Coordenação do Kafka
+Kafka	9092	Broker de mensagens
+Kafdrop	9000	UI Web para Kafka
+MongoDB	27017	Banco de dados
+Mongo Express	8083	Interface web do MongoDB
 
-Kafka → porta 9092
-
-Kafdrop (UI Kafka) → porta 9000
-
-MongoDB → porta 27017
-
-Mongo Express (UI MongoDB) → porta 8083
-
-Verifique com:
+Verifique se todos estão ativos:
 
 bash
 Copiar código
 docker ps
-🔌 2. Subir o WireMock
-O WireMock simula o microserviço externo de CEP (Address API).
+2️⃣ Subir o WireMock
+O WireMock simula o microserviço externo de endereços (Address API).
 
-No diretório onde está o .jar:
+No diretório onde está o .jar, execute:
 
 bash
 Copiar código
-cd C:\Users\edson\Downloads
 java -jar wiremock-standalone-4.0.0-beta.15.jar --port 8082
-📍 Endpoint simulado:
+Endpoint simulado:
 
 bash
 Copiar código
@@ -114,20 +125,28 @@ Copiar código
   "city": "Uberlândia",
   "state": "Minas Gerais"
 }
-🧩 3. Executar a aplicação Spring Boot
+3️⃣ Executar a aplicação Spring Boot
 Na raiz do projeto:
 
 bash
 Copiar código
 ./gradlew bootRun
-A aplicação sobe em:
+A aplicação estará disponível em:
 
 arduino
 Copiar código
 http://localhost:8081
+🌐 Endpoints da API
+Método	Endpoint	Descrição
+POST	/api/v1/customers	Cria um novo cliente
+GET	/api/v1/customers/{id}	Busca cliente por ID
+PUT	/api/v1/customers/{id}	Atualiza dados do cliente
+DELETE	/api/v1/customers/{id}	Remove cliente existente
+
 🧪 Testes e Validações
 🧰 Postman
 ➕ Criar cliente (POST)
+
 bash
 Copiar código
 POST http://localhost:8081/api/v1/customers
@@ -141,10 +160,12 @@ Copiar código
   "zipCode": "38400001"
 }
 🔍 Buscar cliente (GET)
+
 bash
 Copiar código
 GET http://localhost:8081/api/v1/customers/{id}
 ✏️ Atualizar cliente (PUT)
+
 bash
 Copiar código
 PUT http://localhost:8081/api/v1/customers/{id}
@@ -158,6 +179,7 @@ Copiar código
   "zipCode": "38400001"
 }
 ❌ Deletar cliente (DELETE)
+
 bash
 Copiar código
 DELETE http://localhost:8081/api/v1/customers/{id}
@@ -172,13 +194,13 @@ Copiar código
   "id": "691244db8dff586dc37107e9",
   "name": "Edson Rego",
   "zipCode": "38400001",
-  "cp": "12345678901",
+  "cpf": "12345678901",
   "isValidCpf": true
 }
-O ReceiveValidatedCpfConsumer consumirá esta mensagem e atualizará o cliente no MongoDB com isValidCpf = true.
+O ReceiveValidatedCpfConsumer consumirá essa mensagem e atualizará o cliente no MongoDB com isValidCpf = true.
 
-📊 Offset Explorer (antigo Kafka Tool)
-Ferramenta desktop para visualizar tópicos Kafka e mensagens publicadas.
+📊 Offset Explorer (Kafka Tool)
+Ferramenta desktop para visualizar tópicos e mensagens Kafka.
 
 Adicione o broker: localhost:9092
 
@@ -189,22 +211,26 @@ Veja as mensagens publicadas (via API ou Kafkalytic)
 Monitore o offset e o consumo
 
 🍃 MongoDB CLI ou Mongo Express
-Acessar via terminal:
+Via terminal:
+
 bash
 Copiar código
 docker exec -it mongo bash
 mongosh -u root -p example
 use hexagonal
 db.customers.find().pretty()
-Ou via interface web:
+Via interface web:
 👉 http://localhost:8083
+
 Login:
 
 user: root
 
 password: example
 
-Coleção: customers
+database: hexagonal
+
+collection: customers
 
 🔄 Fluxo Completo do Sistema
 O cliente é criado via POST /customers.
@@ -217,33 +243,50 @@ Uma mensagem com isValidCpf=true é publicada no tópico tp-cpf-validated.
 
 O consumidor (ReceiveValidatedCpfConsumer) lê a mensagem e atualiza o registro no MongoDB.
 
-Tudo pode ser acompanhado via:
+🔍 Pode ser acompanhado via:
 
-Mongo Express (dados persistidos)
+Mongo Express → dados persistidos
 
-Kafdrop (mensagens trafegando)
+Kafdrop → mensagens trafegando
 
-Kafkalytic (publicar manualmente)
+Kafkalytic → publicação manual
 
-Offset Explorer (monitorar offsets)
+Offset Explorer → monitoramento de offsets
+
+🧱 Testes de Arquitetura (ArchUnit)
+O projeto utiliza ArchUnit para garantir conformidade com a Arquitetura Hexagonal.
+
+Executar os testes:
+
+bash
+Copiar código
+./gradlew test
+As regras verificam convenções como:
+
+Classes Controller em adapters.in.controller
+
+Classes Repository em adapters.out.repository
+
+Sufixos e camadas respeitando Ports & Adapters
 
 🧾 Stack Técnica
 Componente	Função
 Spring Boot 3.4.0	Framework principal
-Spring Data MongoDB	Persistência no MongoDB
-Spring Cloud OpenFeign	Comunicação REST com WireMock
+Spring Data MongoDB	Persistência
+Spring Cloud OpenFeign	Comunicação REST (mockada via WireMock)
 Spring Kafka	Produção e consumo de mensagens
 WireMock	Mock do microserviço de endereço
 Docker Compose	Orquestração de serviços
-MapStruct + Lombok	Mapeamento e geração de boilerplate
-Kafkalytic / Offset Explorer	Visualização e publicação de mensagens Kafka
+MapStruct + Lombok	Mapeamento e redução de boilerplate
+Kafkalytic / Offset Explorer	Observabilidade de mensagens Kafka
 
-🧠 Autor
+👨‍💻 Autor
 Edson Gomes do Rego
 System Support Engineer | Java Full Stack Developer
 💼 ThoughtWorks | 🎓 Eng. da Computação – Univesp
 🔗 LinkedIn | GitHub
 
-📚 Este projeto é baseado no curso “Arquitetura Hexagonal com Java e Spring Boot” do professor Danilo Arantes.
+📚 Projeto baseado no curso
+“Arquitetura Hexagonal com Java e Spring Boot” — Prof. Danilo Arantes
 
 ```bash
