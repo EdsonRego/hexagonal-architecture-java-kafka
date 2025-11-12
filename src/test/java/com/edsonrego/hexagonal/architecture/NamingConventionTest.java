@@ -133,5 +133,21 @@ public class NamingConventionTest {
             .resideInAPackage("..config..")
             .as("Config classes should reside inside config package");
 
+    @ArchTest
+    public static final ArchRule should_be_suffixed_consumer = classes()
+            .that()
+            .resideInAnyPackage("..consumer")
+            .should()
+            .haveSimpleNameEndingWith("Consumer");
+
+    @ArchTest
+    public static final ArchRule should_be_suffixed_mapper = classes()
+            .that()
+            .resideInAnyPackage("..mapper..")
+            .should()
+            .haveSimpleNameEndingWith("Mapper")
+            .orShould()
+            .haveSimpleNameEndingWith("MapperImpl");
+
 
 }
