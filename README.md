@@ -1,6 +1,6 @@
-# 🧩 Projeto: Arquitetura Hexagonal com Spring Boot, Kafka, MongoDB e WireMock
+# 🧩 Arquitetura Hexagonal com Spring Boot, Kafka, MongoDB e WireMock
 
-Este projeto demonstra na prática a **Arquitetura Hexagonal (Ports and Adapters)** utilizando:
+Este projeto implementa, na prática, a **Arquitetura Hexagonal (Ports & Adapters)** aplicada a um microsserviço moderno com:
 
 - **Java 17**
 - **Spring Boot 3**
@@ -8,59 +8,54 @@ Este projeto demonstra na prática a **Arquitetura Hexagonal (Ports and Adapters
 - **Apache Kafka**
 - **Feign Client + WireMock**
 - **Docker Compose**
-- **Ferramentas de apoio**: Postman, Kafkalytic e Offset Explorer
+
+O objetivo é demonstrar como construir serviços **altamente desacoplados**, **testáveis**, **escaláveis** e **prontos para produção**.
 
 ---
 
-## 🧠 Conceitos Fundamentais
+## 🚀 Visão Geral da Arquitetura
 
-### 🏗️ Arquitetura Hexagonal
+A Arquitetura Hexagonal separa o sistema em três camadas principais:
 
-A **Arquitetura Hexagonal**, também conhecida como **Ports and Adapters**, tem como objetivo **isolar a lógica de negócio** (domínio) das dependências externas, como bancos de dados, mensagerias, frameworks ou APIs externas.
+### **1️⃣ Core (Domínio + Casos de Uso)**
+Contém regras de negócio puras, sem dependências de frameworks.
 
-Ela organiza o sistema em três camadas principais:
+### **2️⃣ Ports (Interfaces)**
+Contratos que definem como o domínio se comunica com o mundo externo.
 
-1. **Core (Domínio + Casos de Uso)**  
-   Contém as regras de negócio puras da aplicação.  
-   → Não depende de frameworks ou tecnologias externas.
+### **3️⃣ Adapters (Infraestrutura)**
+Implementações dos ports, conectando o domínio a:
+- REST Controllers
+- Kafka Producers/Consumers
+- Banco de dados (MongoDB)
+- APIs externas (Feign + WireMock)
 
-2. **Ports (Interfaces)**  
-   Definem *contratos* de entrada e saída da aplicação.  
-   → “Portas” que permitem comunicação entre o domínio e o mundo externo.
-
-3. **Adapters (Implementações)**  
-   Implementam os *ports*, conectando o domínio a:
-    - Banco de dados (MongoDB)
-    - Mensageria (Kafka)
-    - APIs externas (Feign Client / WireMock)
-    - Controllers REST (Spring MVC)
-
-Essa abordagem garante **baixo acoplamento** e **alta testabilidade**, permitindo substituir tecnologias facilmente (ex.: trocar Mongo por Postgres sem afetar o domínio).
+💡 **Benefícios:** baixo acoplamento, facilidade de teste, substituição de tecnologias sem alterar a regra de negócio, manutenção simplificada.
 
 ---
 
-## 📦 Estrutura de Pastas
+## 📁 Estrutura do Projeto
 
 hexagonal
 ├── adapters
 │ ├── in
-│ │ ├── controller # Exposição via REST (API)
-│ │ └── consumer # Consumo de mensagens Kafka
+│ │ ├── controller # API REST
+│ │ └── consumer # Kafka Consumer
 │ └── out
-│ ├── repository # Acesso ao MongoDB
-│ ├── client # Comunicação com serviço externo (Feign)
-│ └── mapper # MapStruct mappers
+│ ├── repository # Persistência MongoDB
+│ ├── client # Integração externa (Feign)
+│ └── mapper # MapStruct
 │
 ├── application
 │ ├── core
-│ │ ├── domain # Entidades do domínio
-│ │ └── usecase # Casos de uso (regras de negócio)
+│ │ ├── domain # Entidades de domínio
+│ │ └── usecase # Casos de uso
 │ └── ports
-│ ├── in # Portas de entrada (chamadas externas)
-│ └── out # Portas de saída (infraestrutura)
+│ ├── in # Portas de entrada
+│ └── out # Portas de saída
 │
-├── config # Beans de configuração Spring
-└── HexagonalApplication.java # Classe principal
+├── config # Beans e configurações Spring
+└── HexagonalApplication.java
 
 yaml
 Copiar código
@@ -69,53 +64,32 @@ Copiar código
 
 ## 🧰 Pré-requisitos
 
-Certifique-se de ter instalado:
-
-- **Java 17**
-- **Gradle 8+**
-- **Docker Desktop**
-- **WireMock 4.0.0-beta.15 (JAR)**
-- **Postman**
-- **VS Code com plugin Kafkalytic (opcional)**
-- **Offset Explorer (opcional)**
+- Java 17
+- Gradle 8+
+- Docker Desktop
+- WireMock Standalone
+- Postman
+- Kafkalytic / Offset Explorer (opcional)
 
 ---
 
-## 🚀 Passo a Passo de Execução
+# ⚙️ Execução Completa do Ambiente
 
-### 1️⃣ Subir os containers Docker
-
-Na raiz do projeto, execute:
-
+## **1️⃣ Subir infraestrutura com Docker**
 
 docker compose up -d
-Isso iniciará:
-
+Serviços provisionados:
 Serviço	Porta	Função
-Zookeeper	2181	Coordenação do Kafka
-Kafka	9092	Broker de mensagens
-Kafdrop	9000	UI Web para Kafka
+Zookeeper	2181	Coordenação Kafka
+Kafka	9092	Broker
+Kafdrop	9000	Visualização Kafka
 MongoDB	27017	Banco de dados
-Mongo Express	8083	Interface web do MongoDB
+Mongo Express	8083	UI para Mongo
 
-Verifique se todos estão ativos:
-
-bash
-Copiar código
-docker ps
-2️⃣ Subir o WireMock
-O WireMock simula o microserviço externo de endereços (Address API).
-
-No diretório onde está o .jar, execute:
-
+2️⃣ Subir o WireMock (mock da Address API)
 bash
 Copiar código
 java -jar wiremock-standalone-4.0.0-beta.15.jar --port 8082
-Endpoint simulado:
-
-bash
-Copiar código
-http://localhost:8082/addresses/{zipCode}
 Exemplo de resposta mockada:
 
 json
@@ -125,32 +99,28 @@ Copiar código
   "city": "Uberlândia",
   "state": "Minas Gerais"
 }
-3️⃣ Executar a aplicação Spring Boot
-Na raiz do projeto:
+Endpoint:
 
 bash
 Copiar código
+http://localhost:8082/addresses/{zipCode}
+3️⃣ Executar a aplicação
+bash
+Copiar código
 ./gradlew bootRun
-A aplicação estará disponível em:
+A API estará disponível em:
 
 arduino
 Copiar código
 http://localhost:8081
-🌐 Endpoints da API
+🌐 Endpoints Principais
 Método	Endpoint	Descrição
-POST	/api/v1/customers	Cria um novo cliente
-GET	/api/v1/customers/{id}	Busca cliente por ID
-PUT	/api/v1/customers/{id}	Atualiza dados do cliente
-DELETE	/api/v1/customers/{id}	Remove cliente existente
+POST	/api/v1/customers	Cria cliente
+GET	/api/v1/customers/{id}	Consulta cliente
+PUT	/api/v1/customers/{id}	Atualiza
+DELETE	/api/v1/customers/{id}	Remove
 
-🧪 Testes e Validações
-🧰 Postman
-➕ Criar cliente (POST)
-
-bash
-Copiar código
-POST http://localhost:8081/api/v1/customers
-Body (JSON):
+Exemplo para criação:
 
 json
 Copiar código
@@ -159,134 +129,74 @@ Copiar código
   "cpf": "12345678901",
   "zipCode": "38400001"
 }
-🔍 Buscar cliente (GET)
-
-bash
-Copiar código
-GET http://localhost:8081/api/v1/customers/{id}
-✏️ Atualizar cliente (PUT)
-
-bash
-Copiar código
-PUT http://localhost:8081/api/v1/customers/{id}
-Body (JSON):
-
-json
-Copiar código
-{
-  "name": "Edson Rego",
-  "cpf": "12345678901",
-  "zipCode": "38400001"
-}
-❌ Deletar cliente (DELETE)
-
-bash
-Copiar código
-DELETE http://localhost:8081/api/v1/customers/{id}
-💬 Kafkalytic (VS Code Plugin)
-Utilize para publicar mensagens manualmente no tópico tp-cpf-validated.
-
-Mensagem de exemplo:
-
-json
-Copiar código
-{
-  "id": "691244db8dff586dc37107e9",
-  "name": "Edson Rego",
-  "zipCode": "38400001",
-  "cpf": "12345678901",
-  "isValidCpf": true
-}
-O ReceiveValidatedCpfConsumer consumirá essa mensagem e atualizará o cliente no MongoDB com isValidCpf = true.
-
-📊 Offset Explorer (Kafka Tool)
-Ferramenta desktop para visualizar tópicos e mensagens Kafka.
-
-Adicione o broker: localhost:9092
-
-Expanda o tópico tp-cpf-validated
-
-Veja as mensagens publicadas (via API ou Kafkalytic)
-
-Monitore o offset e o consumo
-
-🍃 MongoDB CLI ou Mongo Express
-Via terminal:
-
-bash
-Copiar código
-docker exec -it mongo bash
-mongosh -u root -p example
-use hexagonal
-db.customers.find().pretty()
-Via interface web:
-👉 http://localhost:8083
-
-Login:
-
-user: root
-
-password: example
-
-database: hexagonal
-
-collection: customers
-
 🔄 Fluxo Completo do Sistema
-O cliente é criado via POST /customers.
+Cliente é criado (POST /customers).
 
-O serviço publica o CPF no tópico tp-cpf-validation (Kafka Producer).
+O sistema envia o CPF ao tópico tp-cpf-validation.
 
-Um microserviço externo (simulado via WireMock) valida o CPF.
+WireMock simula validação externa de endereço.
 
-Uma mensagem com isValidCpf=true é publicada no tópico tp-cpf-validated.
+Mensagem com isValidCpf=true é enviada ao tópico tp-cpf-validated.
 
-O consumidor (ReceiveValidatedCpfConsumer) lê a mensagem e atualiza o registro no MongoDB.
+O consumer atualiza o cliente no MongoDB.
 
-🔍 Pode ser acompanhado via:
+Monitoramento via:
+
+Kafdrop → tópicos Kafka
 
 Mongo Express → dados persistidos
 
-Kafdrop → mensagens trafegando
+Offset Explorer → offsets
 
 Kafkalytic → publicação manual
 
-Offset Explorer → monitoramento de offsets
+🧪 Testes
+O projeto contém:
 
-🧱 Testes de Arquitetura (ArchUnit)
-O projeto utiliza ArchUnit para garantir conformidade com a Arquitetura Hexagonal.
+✔️ Testes de Arquitetura (ArchUnit)
+Garantindo que:
 
-Executar os testes:
+Controllers estão em adapters.in.controller
+
+Repositórios em adapters.out.repository
+
+Regras de Ports & Adapters são respeitadas
+
+Executar:
 
 bash
 Copiar código
 ./gradlew test
-As regras verificam convenções como:
-
-Classes Controller em adapters.in.controller
-
-Classes Repository em adapters.out.repository
-
-Sufixos e camadas respeitando Ports & Adapters
-
-🧾 Stack Técnica
-Componente	Função
-Spring Boot 3.4.0	Framework principal
+🧱 Stack Técnica
+Tecnologia	Uso
+Spring Boot 3.4	Framework principal
 Spring Data MongoDB	Persistência
-Spring Cloud OpenFeign	Comunicação REST (mockada via WireMock)
-Spring Kafka	Produção e consumo de mensagens
-WireMock	Mock do microserviço de endereço
-Docker Compose	Orquestração de serviços
-MapStruct + Lombok	Mapeamento e redução de boilerplate
-Kafkalytic / Offset Explorer	Observabilidade de mensagens Kafka
+Spring Cloud OpenFeign	Integração externa
+Spring Kafka	Produtor/Consumidor
+WireMock	Mock externo
+MapStruct	Mapeamento
+Docker Compose	Orquestração
+Mongo + Kafdrop	Infra completa local
 
 👨‍💻 Autor
 Edson Gomes do Rego
-System Support Engineer | Java Full Stack Developer
-💼 ThoughtWorks | 🎓 Eng. da Computação – Univesp
-🔗 LinkedIn | GitHub
+System Support Engineer | Backend Java Developer
+📍 São Paulo – Brasil
 
-📚 Projeto baseado no curso
-“Arquitetura Hexagonal com Java e Spring Boot” — Prof. Danilo Arantes
+🔗 LinkedIn
+🔗 GitHub
+
+📌 Observação
+Este projeto foi desenvolvido como uma prova de conceito avançada para demonstrar:
+
+Arquitetura Hexagonal na prática
+
+Integração com mensageria Kafka
+
+Comunicação externa com Feign + mock
+
+Persistência em banco NoSQL
+
+Orquestração completa via Docker
 
 ```bash
